@@ -1,0 +1,210 @@
+{% extends 'tm/base.html' %}
+{% load static%}
+{% load form_extras %}
+{% block title %}Profile building{% endblock %}
+{% block content %}
+      <div class="form-container">
+        <h1 style="font-weight: lighter">Registration</h1>
+         {% if messages %}
+    <div>
+        {% for message in messages %}
+            {# The loop will run but won't print anything unless it's the last iteration #}
+            {% if forloop.last %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" role="alert">
+            {{ message }}
+        </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endif %}
+        <form action="{% url 'profile_building' %}" method="POST" enctype="multipart/form-data" class="form">
+          {% csrf_token %}
+          <div class="title-container">
+            <div class="mb-3">
+                <label for="title" class="form-label">Title *</label>
+              <div class="radio-group">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio"  name="gender" value="Mr" id="Mr" required {% if userprofile.gender == 'Mr' %} checked {% endif %}>
+                    <label class="form-check-label" for="Mr">Mr.</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="gender" value="Mrs" id="Ms" {% if userprofile.gender == 'Mrs' %} checked {% endif %}>
+                    <label class="form-check-label" for="Ms">Ms.</label>
+                </div>
+                </div>
+            </div>
+             <div class="mb-3 row">
+                <div class="col-md-6">
+                    <label for="fname" class="form-label">First Name *</label>
+                    <input type="text" class="form-control" name="firstname" value="{{userprofile.user.first_name}}" id="fname" placeholder="First Name" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="lname" class="form-label">Last Name *</label>
+                    <input type="text" class="form-control" name="lastname" value="{{userprofile.user.last_name}}" id="lname" placeholder="Last Name">
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="email" class="form-label">Email *</label>
+                <input type="email" class="form-control" id="email" value="{{userprofile.user.email}}" readonly name="email" placeholder="abcd@gmail.com" required>
+            </div>
+           <div class="mb-3">
+
+                <label for="internship-duration" class="form-label">Enter Internship Duration(Minimum 3 months) *</label>
+
+                <div class="d-flex gap-2">
+                    <input type="date" class="form-control" value="{{userprofile.internship_start_date|date:'Y-m-d'}}" name="internship_start_date" id="sdate" required>
+                    <input type="date" class="form-control" value="{{userprofile.internship_end_date|date:'Y-m-d'}}" name="internship_end_date" id="ldate" required>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="clgname" class="form-label">College Name *</label>
+<!--                <input type="text" class="form-control" value="{{userprofile.college_name}}" name="college_name" id="clgname" placeholder="College Name" required>-->
+                  <select name="college_name" class="form-select" required  class="form-control">
+                      <option value="" selected="">---------</option>
+                      {% for colname in collegenames %}
+                        <option value="{{colname.name}}" {% if userprofile.college_name == colname.name %} selected {% endif %}>{{colname.name}}</option>
+                      {% endfor %}
+
+                    </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="education-pursued" class="form-label">Education Being Pursued *</label>
+                <p class="form-text">(e.g., Bachelors in Technology, Bachelor of Design)</p>
+                <input type="text" class="form-control" name="education_pursued" value="{{userprofile.education_pursued}}" id="education-pursued" placeholder="Education pursued" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="graduate-year" class="form-label">Graduate Year *</label>
+                <input type="text" class="form-control" name="graduation_year" value="{{userprofile.graduation_year}}" id="graduate-year" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="specialization" class="form-label">Specialization *</label>
+                <p class="form-text">(e.g., Bachelors in Technology, Bachelor of Design)</p>
+                <input type="text" class="form-control" name="specialization" value="{{userprofile.specialization}}" id="specialization" placeholder="Specialization" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="contact" class="form-label">Contact Number *</label>
+                <input type="text" class="form-control" id="contact" value="{{userprofile.contact_number}}" name="contact_number" placeholder="Contact information" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Technology Interested In *</label>
+              <div class="radio-group">
+                  {% for technology in technologies %}
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" id="technology{{ technology.id }}" value="{{ technology.id }}" name="technology_interested" required
+                           {% if technology in user_technologies %} checked {% endif %}>
+                    <label class="form-check-label" for="technology{{ technology.id }}">{{ technology.name }}</label>
+                </div>
+                   {% endfor %}
+              </div>
+            </div>
+              <div class="mb-3">
+                <label class="form-label">Skill Set *</label>
+             <select class="form-select" id="skillset" name="skillset" multiple required>
+                {% for skill in skilled %}
+                  <option value="{{ skill.id }}"
+                          {% if skill in user_skilled %} selected {% endif %}>
+                    {{ skill.name }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="mb-3">
+                <label for="address" class="form-label">Address *</label>
+                <input type="textarea" class="form-control" value="{{userprofile.address}}" id="address" name="address" placeholder="Provide full address" required>
+            </div>
+              <div class="mb-3">
+                <label for="clgname" class="form-label">Prefered Location *</label>
+<!--                <input type="text" class="form-control" value="{{userprofile.college_name}}" name="college_name" id="clgname" placeholder="College Name" required>-->
+                  <select name="prefered_location" class="form-select" required  class="form-control">
+                      <option value="" selected="">---------</option>
+                      {% for location in locations %}
+                        <option value="{{location.id}}" {% if userprofile.Prefered_location_id == location.id %} selected {% endif %}>{{location.name}}</option>
+                      {% endfor %}
+
+                    </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="resume" class="form-label">Upload Resume *</label>
+                <input type="file" class="form-control"  id="resume" name="resume" value="{{ userprofile.resume}}" accept=".pdf,.doc,.docx" required>
+                {% if userprofile.resume %}
+        <p><strong>Uploaded File:</strong><a href="/download/download-resume-hr/{{userprofile.user.id}}" class="download-link"> {{ userprofile.resume }}</a></p>
+    {% endif %}
+            </div>
+
+            <div class="mb-3">
+                <label for="noc" class="form-label">Upload NOC *</label>
+                <input type="file" class="form-control" id="noc" value="{{ userprofile.noc}}" name="noc" accept=".pdf,.doc,.docx" required>
+            {% if userprofile.noc %}
+        <p><strong>Uploaded File:</strong><a href="/download/download-noc-hr/{{userprofile.user.id}}" class="download-link"> {{ userprofile.noc }} </a></p>
+    {% endif %}
+            </div>
+            
+         <div class="d-grid">
+                <button type="submit" class="btn btn-danger">Submit</button>
+            </div>
+         </div>
+        </form>
+      </div>
+
+      <script>
+
+        // Function to set the minimum date for the internship start date
+
+        function setMinStartDate() {
+
+            const today = new Date();
+
+            const nextWeek = new Date(today);
+
+            nextWeek.setDate(today.getDate() + 7);
+
+   
+
+            const formattedDate = nextWeek.toISOString().split('T')[0];
+
+            document.getElementById('sdate').setAttribute('min', formattedDate);
+
+        }
+
+   
+
+        // Function to set the minimum date for the internship end date
+
+        function setMinEndDate() {
+
+            const startDate = new Date(document.getElementById('sdate').value);
+
+            const endDate = new Date(startDate);
+
+            endDate.setDate(startDate.getDate() + 7); // end date should be at least 7 days after start date
+
+   
+
+            const formattedEndDate = endDate.toISOString().split('T')[0];
+
+            document.getElementById('ldate').setAttribute('min', formattedEndDate);
+
+            document.getElementById('ldate').removeAttribute('disabled'); // Enable end date input
+
+        }
+
+   
+
+        window.onload = function() {
+
+            setMinStartDate();
+
+            document.getElementById('sdate').addEventListener('change', setMinEndDate);
+
+        };
+
+    </script>
+    {% endblock %}

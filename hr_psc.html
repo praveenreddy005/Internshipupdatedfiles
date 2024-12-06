@@ -1,0 +1,256 @@
+{% extends 'tm/base.html' %}
+{% load static%}
+
+{% block title %}Contact Us{% endblock %}
+
+
+{% block content %}
+        <div class="main_container">
+        <div class="row mb-3">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                    <li class="breadcrumb-item"><a href="/about">About</a></li>
+                    <li class="breadcrumb-item active" aria-current="page"><a href="/hr_psc">Hr PSC Dashboard</a></li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+          <div class="row">
+        <div class="col-12">
+            <div class="table-responsive">
+            <table id="userTable">
+                <thead>
+                    <tr>
+                        <th>User ID</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>College Name</th>
+                        <th>City</th>
+                        <th>Contact</th>
+                        <th>Specialization</th>
+                        <th>Interested Area</th>
+                        <th>Resume</th>
+                        <th>NOC</th>
+                        <th>GID Creations</th>
+                        <th>Associate Creations</th>
+                    </tr>
+                </thead>
+                <tbody>
+                  {% for user, user_track in tracks.items %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{user.user.first_name}}</td>
+                        <td>{{user.user.last_name}}</td>
+                        <td>{{user.user.userprofile.internship_start_date}}</td>
+                        <td>{{user.user.userprofile.internship_end_date}}</td>
+                        <td>{{user.user.userprofile.college_name}}</td>
+                        <td>{{user.user.userprofile.address}}</td>
+                        <td>{{user.user.userprofile.contact_number}}</td>
+                        <td>{{user.user.userprofile.specialization}}</td>
+                        <td>
+                            {% for technology in user.user.userprofile.technology_interested.all %}
+                                {{ technology.name }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td><a href="/download/download-resume-hr/{{user.user.id}}" class="download-link"><img src="../../static/assets/img/download.svg" alt="download resume"></a></td>
+                        <td><a href="/download/download-noc-hr/{{user.user.id}}" class="download-link"><img src="../../static/assets/img/download.svg" alt="download noc"></a></td>
+
+
+
+
+                        <td>
+                         {% if user_track.interview_status == 'Complete' %}
+                            {% if user_track.rmg_head_approval_status == 'Approved' %}
+                        {% if user_track.hr_offer_letter_status == 'Complete' %}
+                        {% if user_track.gid_creation_status == 'In Progress' %}
+                        <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#gidsend"  data-id="{{ contact.pkuser.user.id }}" data-url="{% url 'change_interview_status' user.user.id %}">Send</button>
+                    <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#gidreject"  data-id="{{ user.user.id }}" data-url="{% url 'change_interview_status' user.user.id %}">Reject</button></td>
+                    {% else %}
+                      {{user_track.gid_creation_status}}
+                      {% endif %}
+                        {% else %}
+                      {{user_track.gid_creation_status}}
+                            {% endif %}
+                        {% else %}
+                      {{user_track.gid_creation_status}}
+                        {% endif %}
+                        {% else %}
+                      {{user_track.gid_creation_status}}
+                        {% endif %}
+                    </td>
+                      </td>
+                    <td>
+                         {% if user_track.interview_status == 'Complete' %}
+                            {% if user_track.rmg_head_approval_status == 'Approved' %}
+                        {% if user_track.hr_offer_letter_status == 'Complete' %}
+                        {% if user_track.gid_creation_status == 'gid Progress' %}
+                        <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#gidapprove"  data-id="{{ contact.pkuser.user.id }}" data-url="{% url 'change_interview_status' user.user.id %}">Approve</button>
+                    <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#gidreject"  data-id="{{ user.user.id }}" data-url="{% url 'change_interview_status' user.user.id %}">Reject</button></td>
+                    {% else %}
+                      {{user_track.gid_creation_status}}
+                      {% endif %}
+                        {% else %}
+                      {{user_track.gid_creation_status}}
+                            {% endif %}
+                        {% else %}
+                      {{user_track.gid_creation_status}}
+                        {% endif %}
+                        {% else %}
+                      {{user_track.gid_creation_status}}
+                        {% endif %}
+                    </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+         </div>
+            </div>
+              </div>
+            </div>
+
+                <!-- Modal -->
+<div class="modal fade modelcenter" id="gidsend"  tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="gidsendModalLongTitle">GID Creation Email</h5>
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+         <form method="post" id="gidsendform" class="Modelform">
+      <div class="modal-body">
+
+          {% if messages %}
+    <div>
+        {% for message in messages %}
+        <div class="{% if message.tags %}{{ message.tags }}{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+              {% csrf_token %}
+
+          <input type="hidden" value="gid_send" name="user_status">
+          <div class="mb-3">
+          <label for="email" class="form-label">Email</label>
+          <input type="email" class="form-control" name="email" id="email" required>
+        </div>
+          <div class="mb-3">
+          <label for="subject" class="form-label">Subject</label>
+          <input type="text" class="form-control" name="subject" id="subject"  required>
+        </div>
+            <div class="mb-3">
+          <label for="body" class="form-label">Body</label>
+          <textarea class="form-control" name="body" id="body" rows="3" required></textarea>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+       <button type="submit" class="btn btn-danger">Update</button>
+       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+        </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade modelcenter" id="gidapprove"  tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="gidModalLongTitle">GID Approval</h5>
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+         <form method="post" id="gidapproveform" class="Modelform">
+      <div class="modal-body">
+
+          {% if messages %}
+    <div>
+        {% for message in messages %}
+        <div class="{% if message.tags %}{{ message.tags }}{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+              {% csrf_token %}
+
+          <input type="hidden" value="gid_approve" name="user_status">
+           <div class="mb-3">
+          <label for="newemail" class="form-label">New Email</label>
+          <input type="email" class="form-control" name="newemail" id="newemail" required>
+        </div>
+          <div class="mb-3">
+          <label for="subject" class="form-label">Subject</label>
+          <input type="text" class="form-control" name="subject" id="subject"  required>
+        </div>
+            <div class="mb-3">
+          <label for="body" class="form-label">Body</label>
+          <textarea class="form-control" name="body" id="body" rows="3" required></textarea>
+        </div>
+            <div class="mb-3">
+          <label for="remarks" class="form-label">Remarks</label>
+          <textarea class="form-control" name="remarks" id="remarks" rows="3" required></textarea>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+       <button type="submit" class="btn btn-danger">Update</button>
+       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+        </form>
+    </div>
+  </div>
+</div>
+      <!-- Modal -->
+<div class="modal fade modelcenter" id="gidreject" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="gidrModalLongTitle">GID Approval</h5>
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+         <form method="post" id="gidrejectform" class="Modelform">
+      <div class="modal-body">
+
+          {% if messages %}
+    <div>
+        {% for message in messages %}
+        <div class="{% if message.tags %}{{ message.tags }}{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+              {% csrf_token %}
+
+                <input type="hidden" value="gid_reject" name="user_status">
+                <div class="mb-3">
+          <label for="remarkss" class="form-label">Remarks</label>
+          <textarea class="form-control" name="remarks" id="remarkss" rows="3" required></textarea>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+       <button type="submit" class="btn btn-danger">Update</button>
+       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+        </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

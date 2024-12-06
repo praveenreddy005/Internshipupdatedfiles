@@ -1,0 +1,784 @@
+{% extends 'tm/base.html' %}
+{% load static%}
+{% load form_extras %}
+{% block title %}WFM DASH{% endblock %}
+
+
+{% block content %}
+<style>
+  /* Custom CSS for responsiveness */
+  .main_container {
+    padding: 15px;
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  .table-responsive {
+    margin-top: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  #userTable {
+    width: 100%;
+    font-size: 14px;
+    border-collapse: collapse;
+  }
+
+  #userTable th {
+    background-color: #f8f9fa;
+    padding: 12px 8px;
+    white-space: nowrap;
+    border-bottom: 2px solid #dee2e6;
+  }
+
+  #userTable td {
+    padding: 12px 8px;
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  /* Status styling */
+  .status {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .status-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+  }
+
+  .btn {
+    white-space: nowrap;
+    margin: 2px;
+  }
+
+  /* Modal responsiveness */
+  .modal-dialog {
+    margin: 1rem;
+    max-width: 500px;
+  }
+
+  .modal-content {
+    border-radius: 8px;
+  }
+
+  .form-select {
+    width: 100%;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+  }
+
+  /* Responsive breakpoints */
+  @media (max-width: 768px) {
+    .main_container {
+      padding: 10px;
+    }
+
+    #userTable {
+      display: block;
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    #userTable thead {
+      display: none;
+    }
+
+    #userTable tr {
+      display: block;
+      border: 1px solid #dee2e6;
+      margin-bottom: 10px;
+      border-radius: 4px;
+    }
+
+    #userTable td {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px;
+      border: none;
+      border-bottom: 1px solid #eee;
+    }
+
+    #userTable td:before {
+      content: attr(data-label);
+      font-weight: bold;
+      margin-right: 10px;
+      min-width: 120px;
+    }
+
+    .status {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .breadcrumb {
+      flex-wrap: wrap;
+      padding: 8px;
+    }
+  }
+
+  /* Tablet optimization */
+  @media (min-width: 769px) and (max-width: 1024px) {
+    #userTable {
+      font-size: 13px;
+    }
+
+    .btn {
+      padding: 4px 8px;
+    }
+  }
+</style>
+
+      <div class="main_container">
+        <div class="row mb-3">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                    <li class="breadcrumb-item"><a href="/about">About</a></li>
+                    <li class="breadcrumb-item active" aria-current="page"><a href="/WFM_SL_Head_dash">WFM Head Dashboard</a></li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+          <div class="row">
+        <div class="col-12">
+            <div class="table-responsive">
+            <table id="userTable">
+              <thead>
+                <tr>
+<!--                  <th>Sl. No</th>-->
+                  <th>Candidate Name</th>
+                  <th>City</th>
+                  <th>Technology</th>
+                  <th>Interview Action</th>
+                  <th>Interview Status</th>
+                  <th>Score(Tech,Soft,%)</th>
+                  <th>IBU Head</th>
+                  <th>PSC Head</th>
+                    <th>PSC HR</th>
+                    <th>Associate HR</th>
+                    <th>Assign Mentor</th>
+              <th>Assign Project</th>
+              </thead>
+              <tbody>
+                {% for user, user_track in tracks.items %}
+                {% if user.role_id == 1 %}
+                <tr>
+<!--                  <td>{{ forloop.counter }}</td>-->
+                  <td>{{user.user.first_name}} {{user.user.last_name}}</td>
+                  <td>{{user.address}}</td>
+                  <td>{% for skillsets in user.user.userprofile.skillset.all %}
+                    {{ skillsets.name }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}</td>
+
+                  {% if user_track.interview_status == 'Pending' %}
+                    <td><button type="button" class="btn btn-danger" data-id="{{user.user.id}}" data-url="{% url 'change_interview_status' user.user.id %}" data-bs-toggle="modal" data-bs-target="#interviewModal">
+                            Send
+                        </button><button type="button" class="btn btn-danger" data-id="{{user.user.id}}" data-url="{% url 'change_interview_status' user.user.id %}" data-bs-toggle="modal" data-bs-target="#interviewskipModal">
+                            Skip
+                        </button></td>
+<!--                    <td><button class="send-button" data-user-id="{{ user.user.id }}">Send</button></td>-->
+                  {% else %}
+                    <td><img src="../../static/assets/img/Clip path group.svg" alt="Clip path group"></td>
+                  {% endif %}
+
+                  <td class="status">
+                    {% if user_track.interview_status == 'Complete' %}
+                      <div class="status-item active">
+                    {% else %}
+                      <div class="status-item">
+                    {% endif %}
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        {% if user_track.interview_status == 'Complete' %}
+                          <circle cx="10" cy="10" r="10" fill="#248A00"/>
+                        {% else %}
+                          <circle cx="10" cy="10" r="10" fill="#999999"/>
+                        {% endif %}
+                      </svg>
+                      <span class="status-text">Completed</span>
+                    </div>
+                    {% if user_track.interview_status == 'In Progress' %}
+                      <div class="status-item active">
+                    {% else %}
+                      <div class="status-item">
+                    {% endif %}
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        {% if user_track.interview_status == 'In Progress' %}
+                          <circle cx="10" cy="10" r="10" fill="#EBC600"/>
+                        {% else %}
+                          <circle cx="10" cy="10" r="10" fill="#999999"/>
+                        {% endif %}
+                      </svg>
+                      <span class="status-text">InProgress</span>
+                    </div>
+                    {% if user_track.interview_status == 'Rejected' %}
+                      <div class="status-item active">
+                    {% else %}
+                      <div class="status-item">
+                    {% endif %}
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        {% if user_track.interview_status == 'Rejected' %}
+                          <circle cx="10" cy="10" r="10" fill="#D90505"/>
+                        {% else %}
+                          <circle cx="10" cy="10" r="10" fill="#999999"/>
+                        {% endif %}
+                      </svg>
+                      <span class="status-text">Rejected</span>
+                    </div>
+                  </td>
+                  <td>{% if user_track.interview_status == 'Skipped' %}
+                      Skipped
+                      {% else %}
+                      {{user_track.technical_skills_score}},{{user_track.soft_skills_score}},{{ user_track.technical_skills_score|total_percentage:user_track.soft_skills_score }}%
+                  {% endif %}
+                  </td>
+                  <td>
+                            {% if user_track.interview_status == 'Complete' or user_track.interview_status == 'Skipped' %}
+                            {% if user_track.ibu_head_approval_status == 'Pending' %}
+                        <button type="button" class="btn btn-danger" data-id="{{user.user.id}}" data-url="{% url 'change_interview_status' user.user.id %}" data-bs-toggle="modal" data-bs-target="#exampleModalCenter">
+                            Send
+                        </button>
+                      {% else %}
+                      {{user_track.ibu_head_approval_status}}
+                      {% endif %}
+                      {% else %}
+                      {{user_track.ibu_head_approval_status}}
+                      {% endif %}
+                      </td>
+                  <td>
+                            {% if user_track.ibu_head_approval_status == 'Approved' and user_track.rmg_head_approval_status == 'Pending' %}
+                        <button type="button" class="btn btn-danger" data-id="{{user.user.id}}" data-url="{% url 'change_interview_status' user.user.id %}" data-bs-toggle="modal" data-bs-target="#rmgModal">
+                           send
+                        </button>
+                      {% else %}
+                      {{user_track.rmg_head_approval_status}}
+                      {% endif %}
+
+                      </td>
+                    <td>
+                        {% if user_track.rmg_head_approval_status == 'Approved' and user_track.hr_offer_letter_status == 'Pending' %}
+                        <button type="button" class="btn btn-danger" data-id="{{user.user.id}}" data-url="{% url 'change_interview_status' user.user.id %}" data-bs-toggle="modal" data-bs-target="#hrModal">
+                           send
+                        </button>
+                      {% else %}
+                      {{user_track.hr_offer_letter_status}}
+                      {% endif %}
+
+                      </td>
+                    <td>
+                        {% if  user_track.rmg_head_approval_status == 'Approved' and  user_track.hr_offer_letter_status == 'Complete' and user_track.onboarding_process_status == 'Pending' %}
+                        <button type="button" class="btn btn-danger" data-id="{{user.user.id}}" data-url="{% url 'change_interview_status' user.user.id %}" data-bs-toggle="modal" data-bs-target="#gidModal">
+                           send
+                        </button>
+                      {% else %}
+                      {{user_track.onboarding_process_status}}
+                      {% endif %}
+
+                      </td>
+                    <td>
+                        {% if user_track.rmg_head_approval_status == 'Approved' and user_track.hr_offer_letter_status == 'Complete' and user_track.onboarding_process_status == 'Complete' and user_track.gid_creation_status == 'Complete' and user_track.mentor_assigned_status == 'Pending' or user_track.mentor_assigned_status == 'Rejected' %}
+                        <button type="button" class="btn btn-danger" data-id="{{user.user.id}}" data-url="{% url 'change_interview_status' user.user.id %}" data-bs-toggle="modal" data-bs-target="#mentorModal">
+                           send
+                        </button>
+                        {% else %}
+                      {{user_track.mentor_assigned_status}}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if user_track.rmg_head_approval_status == 'Approved' and user_track.hr_offer_letter_status == 'Complete' and user_track.onboarding_process_status == 'Complete' and user_track.gid_creation_status == 'Complete' and user_track.mentor_assigned_status == 'Complete' and user_track.project_assigned_status == 'Pendding' %}
+                        <button type="button" class="btn btn-danger" data-id="{{user.user.id}}" data-url="{% url 'change_interview_status' user.user.id %}" data-bs-toggle="modal" data-bs-target="#projectModal">
+                           send
+                        </button>
+                        {% else %}
+                      {{user_track.project_assigned_status}}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+          </div>
+
+      <!-- Modal -->
+<div class="modal fade modelcenter" id="exampleModalCenter"  tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">IBU HEAD Approval</h5>
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+         <form method="post" id="Interviewuid" class="Modelform">
+      <div class="modal-body">
+
+          {% if messages %}
+    <div>
+        {% for message in messages %}
+        <div class="{% if message.tags %}{{ message.tags }}{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+              {% csrf_token %}
+
+              <p>IBU Head Users</p>
+          <input type="hidden" value="admin_ibu_head" name="user_status">
+              <select name="adminibuuser" id="user" class="form-select"  required>
+                  {% for user, user_track in tracks.items %}
+                    {% if user.role_id == 11 %}
+                    <option value="{{user.user.id}}">{{user.user.username}}</option>
+                  {% endif %}
+                  {% endfor %}
+                </select>
+<!--              <p>email body</p>-->
+<!--          <textarea id="email" name="email" rows="4" cols="50" required>-->
+<!--            </textarea>-->
+
+<!--              <p>Remarks</p>-->
+<!--          <textarea id="remark" name="remark" rows="4" cols="50" required>-->
+<!--            </textarea>-->
+
+
+
+      </div>
+      <div class="modal-footer">
+       <button type="submit" class="btn btn-danger">Update</button>
+       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+        </form>
+    </div>
+  </div>
+</div>
+      <!-- Modal -->
+<div class="modal fade modelcenter" id="rmgModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rmgModalLongTitle">PSC Head Approval</h5>
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+         <form method="post" id="rmgform" class="Modelform">
+      <div class="modal-body">
+
+          {% if messages %}
+    <div>
+        {% for message in messages %}
+        <div class="{% if message.tags %}{{ message.tags }}{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+              {% csrf_token %}
+
+              <p>PSC Head Users</p>
+                <input type="hidden" value="admin_rmg_head" name="user_status">
+              <select name="rmguser" id="rmguser" class="form-select"  required>
+                  {% for user, user_track in tracks.items %}
+                    {% if user.role_id == 9 %}
+                    <option value="{{user.user.id}}">{{user.user.username}}</option>
+                  {% endif %}
+                  {% endfor %}
+                </select>
+<!--              <p>email body</p>-->
+<!--          <textarea id="rmgemail" name="email" rows="4" cols="50" required>-->
+<!--            </textarea>-->
+
+<!--              <p>Remarks</p>-->
+<!--                <textarea id="remark" name="remark" rows="4" cols="50" required>-->
+<!--            </textarea>-->
+
+
+
+      </div>
+      <div class="modal-footer">
+       <button type="submit" class="btn btn-danger">Update</button>
+       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+        </form>
+    </div>
+  </div>
+</div>
+          <!-- Modal -->
+<div class="modal fade modelcenter" id="interviewModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="InterviewModalLongTitle">Assign Interviewer</h5>
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+         <form method="post" id="interviewerform" class="Modelform">
+      <div class="modal-body">
+
+          {% if messages %}
+    <div>
+        {% for message in messages %}
+        <div class="{% if message.tags %}{{ message.tags }}{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+              {% csrf_token %}
+
+                <input type="hidden" value="interview_assign" name="user_status">
+              <select name="interviewuser" id="interviewuser" class="form-select"  required>
+                  {% for user, user_track in tracks.items %}
+                    {% if user.role_id == 10 %}
+                    <option value="{{user.user.id}}">{{user.user.username}}</option>
+                  {% endif %}
+                  {% endfor %}
+                </select>
+<!--              <p>email body</p>-->
+<!--          <textarea id="intervieweremail" name="email" rows="4" cols="50" required>-->
+<!--            </textarea>-->
+
+<!--              <p>Remarks</p>-->
+<!--                <textarea id="remark" name="remark" rows="4" cols="50" required>-->
+<!--            </textarea>-->
+
+
+
+      </div>
+      <div class="modal-footer">
+       <button type="submit" class="btn btn-danger">Update</button>
+       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+        </form>
+    </div>
+  </div>
+</div>
+
+          <!-- Modal -->
+<div class="modal fade modelcenter" id="interviewskipModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="InterviewskipModalLongTitle">Assign Interviewer</h5>
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+         <form method="post" id="interviewerskipform" class="Modelform">
+      <div class="modal-body">
+
+          {% if messages %}
+    <div>
+        {% for message in messages %}
+        <div class="{% if message.tags %}{{ message.tags }}{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+              {% csrf_token %}
+
+                <input type="hidden" value="interview_skip" name="user_status">
+
+<!--              <p>email body</p>-->
+<!--          <textarea id="intervieweremail" name="email" rows="4" cols="50" required>-->
+<!--            </textarea>-->
+                <div class="mb-3">
+                  <label for="Remarks" class="form-label">Remarks</label>
+                  <textarea class="form-control" id="Remarks" name="remark" rows="3" required></textarea>
+                </div>
+
+
+
+
+      </div>
+      <div class="modal-footer">
+       <button type="submit" class="btn btn-danger">Update</button>
+       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+        </form>
+    </div>
+  </div>
+</div>
+
+              <!-- Modal -->
+<div class="modal fade modelcenter" id="hrModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="hrModalLongTitle">Assign Associate Hr</h5>
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+         <form method="post" id="hrform" class="Modelform">
+      <div class="modal-body">
+
+          {% if messages %}
+    <div>
+        {% for message in messages %}
+        <div class="{% if message.tags %}{{ message.tags }}{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+              {% csrf_token %}
+
+                <input type="hidden" value="admin_hr" name="user_status">
+              <select name="hruser" id="hruser" class="form-select"  required>
+                  {% for user, user_track in tracks.items %}
+                    {% if user.role_id == 8 %}
+                    <option value="{{user.user.id}}">{{user.user.username}}</option>
+                  {% endif %}
+                  {% endfor %}
+                </select>
+<!--              <p>email body</p>-->
+<!--          <textarea id="hremail" name="email" rows="4" cols="50" required>-->
+<!--            </textarea>-->
+
+<!--              <p>Remarks</p>-->
+<!--                <textarea id="remark" name="remark" rows="4" cols="50" required>-->
+<!--            </textarea>-->
+
+
+
+      </div>
+      <div class="modal-footer">
+       <button type="submit" class="btn btn-danger">Update</button>
+       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+        </form>
+    </div>
+  </div>
+</div>
+              <!-- Modal -->
+<div class="modal fade modelcenter" id="gidModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="gidModalLongTitle">Assign PSC Hr</h5>
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+         <form method="post" id="gidform" class="Modelform">
+      <div class="modal-body">
+
+          {% if messages %}
+    <div>
+        {% for message in messages %}
+        <div class="{% if message.tags %}{{ message.tags }}{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+              {% csrf_token %}
+                <input type="hidden" value="admin_gid" name="user_status">
+              <select name="giduser" id="giduser" class="form-select"  required>
+                  {% for user, user_track in tracks.items %}
+                    {% if user.role_id == 7 %}
+                    <option value="{{user.user.id}}">{{user.user.username}}</option>
+                  {% endif %}
+                  {% endfor %}
+                </select>
+<!--              <p>email body</p>-->
+<!--          <textarea id="gidemail" name="email" rows="4" cols="50" required>-->
+<!--            </textarea>-->
+
+      </div>
+      <div class="modal-footer">
+       <button type="submit" class="btn btn-danger">Update</button>
+       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+        </form>
+    </div>
+  </div>
+</div>
+                     <!-- Modal -->
+<div class="modal fade modelcenter" id="mentorModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="mentorModalLongTitle">Assign Mentor</h5>
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+         <form method="post" id="mentorform" class="Modelform">
+      <div class="modal-body">
+
+          {% if messages %}
+    <div>
+        {% for message in messages %}
+        <div class="{% if message.tags %}{{ message.tags }}{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+              {% csrf_token %}
+
+                <input type="hidden" value="admin_mentor" name="user_status">
+              <select name="mentoruser" id="mentoruser" class="form-select"  required>
+                  {% for user, user_track in tracks.items %}
+                    {% if user.role_id == 6 %}
+                    <option value="{{user.user.id}}">{{user.user.username}}</option>
+                  {% endif %}
+                  {% endfor %}
+                </select>
+<!--              <p>email body</p>-->
+<!--          <textarea id="mentoremail" name="email" rows="4" cols="50" required>-->
+<!--            </textarea>-->
+
+      </div>
+      <div class="modal-footer">
+       <button type="submit" class="btn btn-danger">Update</button>
+       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+        </form>
+    </div>
+  </div>
+</div>
+                     <!-- Modal -->
+<div class="modal fade modelcenter" id="projectModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="projectModalLongTitle">Assign Project</h5>
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+         <form method="post" id="projectform" class="Modelform">
+      <div class="modal-body">
+
+          {% if messages %}
+    <div>
+        {% for message in messages %}
+        <div class="{% if message.tags %}{{ message.tags }}{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+              {% csrf_token %}
+                <input type="hidden" value="admin_gid" name="user_status">
+              <select name="giduser" id="projectuser" class="form-select"  required>
+                  {% for user, user_track in tracks.items %}
+                    {% if user.role == 'hr' %}
+                    <option value="{{user.user.id}}">{{user.user.username}}</option>
+                  {% endif %}
+                  {% endfor %}
+                </select>
+<!--              <p>email body</p>-->
+<!--          <textarea id="gidemail" name="email" rows="4" cols="50" required>-->
+<!--            </textarea>-->
+
+      </div>
+      <div class="modal-footer">
+       <button type="submit" class="btn btn-danger">Update</button>
+       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+        </form>
+    </div>
+  </div>
+</div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+      function toggleDropdown() {
+          document.getElementById("myDropdown").classList.toggle("show");
+      }
+
+      function redirectTo(url) {
+          window.location.href = url;
+      }
+
+      window.onclick = function(event) {
+          if (!event.target.matches('.dropdown button')) {
+              var dropdowns = document.getElementsByClassName("dropdown-content");
+              for (var i = 0; i < dropdowns.length; i++) {
+                  var openDropdown = dropdowns[i];
+                  if (openDropdown.classList.contains('show')) {
+                      openDropdown.classList.remove('show');
+                  }
+              }
+          }
+      }
+
+      $(document).ready(function() {
+        $('.send-button').on('click', function() {
+            var userId = $(this).data('user-id');
+            var url = '/change_interview_status/' + userId + '/';
+            var csrfToken = '{{ csrf_token }}';
+    
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: {
+                    status: 'In Progress',
+                    csrfmiddlewaretoken: csrfToken
+                },
+                success: function(response) {
+                    alert(response.message); // Display a success message or handle the response as needed
+                    location.reload(); // Reload the page to reflect the status change
+                },
+                error: function(xhr, status, error) {
+                    alert('An error occurred. Please try again.');
+                }
+            });
+        });
+    });
+  </script>
+  <script>
+    document.querySelectorAll('.send-button').forEach(button => {
+      button.addEventListener('click', function() {
+        this.outerHTML = '<img src="../../static/assets/img/Clip path group.svg" alt="Clip path group">';
+      });
+    });
+  
+    // Function to update active status and colors
+    function updateActiveStatus(statusCell) {
+      const activeItem = statusCell.querySelector('.status-item.active');
+      const svg = activeItem.querySelector('svg circle');
+      const statusText = activeItem.querySelector('.status-text');
+      const activeColor = svg.getAttribute('fill');
+      
+      statusText.style.color = activeColor;
+      activeItem.style.color = activeColor;
+  
+      // Set inactive items to grey
+      statusCell.querySelectorAll('.status-item:not(.active)').forEach(item => {
+        item.querySelector('svg circle').setAttribute('fill', '#999999');
+      });
+    }
+  
+    // Initialize active statuses
+    document.querySelectorAll('.status').forEach(updateActiveStatus);
+  </script>
+
+{% endblock %}

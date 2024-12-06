@@ -1,0 +1,175 @@
+{% extends 'tm/base.html' %}
+{% load static%}
+
+{% block title %}Home {% endblock %}
+
+{% block content %}
+<div class="home-page">
+    <div class="container-fluid px-3 d-flex flex-column flex-lg-row justify-content-between gap-5">
+        <div class="img-container d-flex justify-content-center align-items-center">
+            <div class="gif-container">
+                <img src="{% static 'assets/img/profile-building.png' %}" data-gif="{% static 'assets/img/profile-building.gif' %}" alt="GIF" class="gif">
+            </div>
+        </div>
+        <div class="data-container py-3">
+            <div class="content-container d-flex flex-column gap-2">
+                <h2>Pre - Onboarding Process</h2>
+                <p>In Pre- Onboarding process, the candidate can start providing details to the Admin like Tenure of internship (Start date- End Date), Interest area, contact details etc. Additionally, the candidate can attach the resume and other required documents. Through this process, we intend to bridge the gap between interested participants and Admin of this website.</p>
+                <p>We really appreciate your careful attention in giving us this information. It is very important for making sure the onboarding process goes smoothly and successfully.</p>
+               {% if user.is_authenticated %}
+                {% if userprofile.role_id == 1 %}
+                <div class="home-btn">
+                    <button><a href="/profile_building/">Click to Start</a></button>
+                </div>
+                {% endif %}
+                {% else %}
+                 <div class="home-btn">
+                    <button><a href="/signinOTP/">Click to Start</a></button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid px-3 d-flex flex-column-reverse flex-lg-row justify-content-between gap-5">
+        <div class="data-container py-3">
+            <div class="content-container d-flex flex-column gap-2">
+                <h2>Onboarding Process</h2>
+                <p>Once your application has been successfully reviewed and approved, you will be notified that your offer letter is ready for download. Along with the offer letter, you will find important process documents outlining essential procedures and policies for your role. Promptly download, review, and sign these documents to ensure a smooth integration into our team.</p>
+                <p>Additionally, the upload process documents are a crucial step in our recruitment journey, requiring you to submit signed documents and identification materials.</p>
+                {% if user.is_authenticated %}
+                {% if userprofile.role_id == 1 %}
+                <div class="home-btn">
+                    <button><a href="/onboarding-process/">Click to Onboard</a></button>
+                </div>
+                {% endif %}
+                {% else %}
+                 <div class="home-btn">
+                    <button><a href="/signinOTP/">Click to Onboard</a></button>
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+        <div class="img-container d-flex justify-content-center">
+            <div class="gif-container">
+                <img src="{% static 'assets/img/onboarding.png' %}" data-gif="{% static 'assets/img/onboarding.gif' %}" alt="GIF" class="gif">
+            </div>
+        </div>
+    </div>
+    <div class="hidden">
+        <div class="container-fluid px-3 d-flex flex-column flex-lg-row justify-content-between gap-5">
+            <div class="img-container d-flex justify-content-center align-items-center">
+                <div class="gif-container">
+                    <img src="{% static 'assets/img/internship-extension.png' %}" data-gif="{% static 'assets/img/internship-extension.gif' %}" alt="GIF" class="gif">
+                </div>
+            </div>
+            <div class="data-container py-3">
+                <div class="content-container d-flex flex-column gap-2">
+                    <h2>Internship Extension</h2>
+                    <p>Candidates have the opportunity to extend their internship to match their preferences and circumstances, empowering them to customize their learning journey. This flexibility demonstrates our commitment to nurturing their professional development and creating an environment conducive to skill enhancement.</p>
+                    <p>By allowing candidates to request extensions based on their individual timelines, we prioritize their professional growth and career aspirations, ensuring they have the necessary time to achieve their full potential.</p>
+                   {% if user.is_authenticated %}
+                {% if userprofile.role_id == 1 %}
+                <div class="home-btn">
+                    <button><a href="/internship-extension/">Click to Extend</a></button>
+                </div>
+                {% endif %}
+                {% else %}
+                 <div class="home-btn">
+                    <button><a href="/signinOTP/">Click to Extend</a></button>
+                </div>
+                {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="hidden">
+        <div class="container-fluid px-3 d-flex flex-column-reverse flex-lg-row justify-content-between gap-5">
+            <div class="data-container py-3">
+                <div class="content-container d-flex flex-column gap-2">
+                    <h2>Project Management</h2>
+                    <p>In project management, you can view detailed information including the names and descriptions of each project. This overview also includes the names of the mentors associated with the projects. By accessing this information, you can easily understand the scope and objectives of each project, as well as who is guiding and overseeing the work.</p>
+                    <p>This transparency helps in tracking progress and ensuring effective communication throughout the project lifecycle with the mentor and the interns.</p>
+                    {% if user.is_authenticated %}
+                {% if userprofile.role_id == 1 %}
+                <div class="home-btn">
+                    <button><a href="/project-management/">Click to See</a></button>
+                </div>
+                {% endif %}
+                {% else %}
+                 <div class="home-btn">
+                    <button><a href="/signinOTP/">Click to See</a></button>
+                </div>
+                {% endif %}
+
+                </div>
+            </div>
+            <div class="img-container d-flex justify-content-center align-items-center">
+                <div class="gif-container">
+                    <img src="{% static 'assets/img/project-management.png' %}" data-gif="{% static 'assets/img/project-management.gif' %}" alt="GIF" class="gif">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="hidden">
+        <div class="container-fluid px-3 d-flex flex-column flex-lg-row justify-content-between gap-5">
+            <div class="img-container d-flex justify-content-center align-items-center">
+                <div class="gif-container">
+                    <img src="{% static 'assets/img/off-boarding.png' %}" data-gif="{% static 'assets/img/off-boarding.gif' %}" alt="GIF" class="gif">
+                </div>
+            </div>
+            <div class="data-container py-3">
+                <div class="content-container d-flex flex-column gap-2">
+                    <h2>Off Boarding Process</h2>
+                    <p>By providing a centralized platform for candidates to upload their projects, code, and related work, we establish a robust system that ensures smooth transitions in case of departures or unexpected situations. This repository serves as a knowledge hub, allowing new candidates to quickly understand ongoing projects, codebases, and workflows.</p>
+                    <p>It also acts as a pivotal milestone for candidates to showcase their efforts and achievements, offering a comprehensive overview of their work, including objectives, methodologies, findings, and conclusions.</p>
+                     {% if user.is_authenticated %}
+                {% if userprofile.role_id == 1 %}
+                <div class="home-btn">
+                    <button><a href="/upload-code/">Click to Off-Board</a></button>
+                </div>
+                {% endif %}
+                {% else %}
+                 <div class="home-btn">
+                    <button><a href="/signinOTP/">Click to Off-Board</a></button>
+                </div>
+                {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="hidden">
+        <div class="container-fluid px-3 d-flex flex-column flex-lg-row justify-content-between gap-5">
+            <div class="data-container py-3">
+                <div class="content-container d-flex flex-column gap-2">
+                    <h2>Application Tracking</h2>
+                    <p>Candidates should be able to track their application through various stages. The process starts with profile building and document uploads, followed by approvals from the IBU and PSC heads. After securing these approvals, HR issues an offer letter. The onboarding process then begins, involving GID creation, mentor assignment, and project allocation.</p>
+                    <p>This comprehensive tracking enhances transparency and communication but also ensures that the candidate is well-informed and prepared at every step of their integration into the organization.</p>
+                     {% if user.is_authenticated %}
+                    {% if userprofile.role_id == 1 %}
+                <div class="home-btn">
+                    <button><a href="/application-tracking/">Click to Track</a></button>
+                </div>
+                {% endif %}
+                {% else %}
+                 <div class="home-btn">
+                    <button><a href="/signinOTP/">Click to Track</a></button>
+                </div>
+                {% endif %}
+
+                </div>
+            </div>
+            <div class="img-container d-flex justify-content-center align-items-center">
+                <div class="gif-container">
+                    <img src="{% static 'assets/img/application-tracking.png' %}" data-gif="{% static 'assets/img/application-tracking.gif' %}" alt="GIF" class="gif">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="view-more d-flex justify-content-center py-3">
+        <button class="show-button" onclick="hideItems()">View More</button>
+    </div>
+</div>
+{% endblock %}

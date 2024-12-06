@@ -1,0 +1,143 @@
+{% extends 'tm/base.html' %}
+{% load static %}
+
+{% block title %}Sign In{% endblock %}
+
+{% block content %}
+<style>
+    /* Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+    }
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 600px;
+        border-radius: 8px;
+    }
+    .close-modal {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    .close-modal:hover {
+        color: black;
+    }
+</style>
+
+<div class="container-fluid d-flex flex-row justify-content-center py-5">
+    <div class="sign-in-box">
+        <h2>Sign In</h2>
+        
+        {% if messages %}
+        <div>
+            {% for message in messages %}
+                {% if forloop.last %}
+                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" role="alert">
+                    {{ message }}
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="POST" action="{% url 'signinOTP' %}" id="signInForm" style="width: 400px; margin: 0 auto;">
+            {% csrf_token %}
+            <div class="radio-group flex justify-center space-x-4 mb-6">
+                <label class="flex items-center">
+                    <input type="radio" name="user_type" value="guest" checked class="mr-2">
+                    <span style="color: #D90505;">Guest User</span>
+                </label>
+                <label class="flex items-center">
+                    <input type="radio" name="user_type" value="techm_user" class="mr-2">
+                    <span style="color: black;">Tech M User</span>
+                </label>
+            </div>
+
+            <div class="email-section flex flex-col items-center">
+                <label class="email-label mb-2">Email Id</label>
+                <div class="w-full">
+                    <input
+                        type="email"
+                        name="email"
+                        id="email"
+                        placeholder="Enter your Email Id"
+                        required
+                        class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                </div>
+
+                <div class="terms-section mt-4 flex items-center justify-center">
+                    <input
+                        type="checkbox"
+                        id="terms-checkbox"
+                        name="terms_accepted"
+                        required
+                        class="mr-2"
+                    >
+                    <label for="terms-checkbox" class="text-sm">
+                        I agree to the <a href="#" id="terms-link" style="text-decoration: none;">Terms & Conditions</a>
+                    </label>
+                </div>
+
+                <button
+                    type="submit"
+                    class="generate-otp mt-4 bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition duration-300 w-full"
+                >
+                    Generate OTP
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Terms & Conditions Modal -->
+<div id="termsModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2>Terms & Conditions</h2>
+        <p>1. Introduction: These terms govern your use of our service.</p>
+        <p>2. User Rights: By using our service, you agree to these terms.</p>
+        <p>3. Privacy: Your data is protected according to our privacy policy.</p>
+        <!-- Add more terms as needed -->
+    </div>
+</div>
+
+<script>
+    // Modal functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('termsModal');
+        const termsLink = document.getElementById('terms-link');
+        const closeModal = document.querySelector('.close-modal');
+
+        termsLink.onclick = function(e) {
+            e.preventDefault();
+            modal.style.display = 'block';
+        }
+
+        closeModal.onclick = function() {
+            modal.style.display = 'none';
+        }
+
+        // Close modal if clicked outside
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+    });
+</script>
+{% endblock %}
